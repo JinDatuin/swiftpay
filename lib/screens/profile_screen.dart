@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../services/firebase_auth_service.dart';
+import '../services/wallet_provider.dart';
+import 'login_screen.dart';
 import 'edit_profile_screen.dart';
 import 'change_password_screen.dart';
 
@@ -7,6 +11,10 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final walletProvider = Provider.of<WalletProvider>(context);
+    final user = walletProvider.user;
+    final FirebaseAuthService authService = FirebaseAuthService();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FE),
       appBar: AppBar(
@@ -16,10 +24,7 @@ class ProfileScreen extends StatelessWidget {
         ),
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
+        automaticallyImplyLeading: false,
         centerTitle: true,
       ),
       body: SingleChildScrollView(
@@ -53,14 +58,14 @@ class ProfileScreen extends StatelessWidget {
                               ),
                             ],
                           ),
-                          child: const Center(
+                          child: Center(
                             child: CircleAvatar(
                               radius: 56,
                               backgroundColor: Colors.white,
                               child: CircleAvatar(
                                 radius: 52,
                                 backgroundImage: NetworkImage(
-                                  'https://i.pravatar.cc/300',
+                                  user?.profileImageUrl ?? 'https://i.pravatar.cc/300',
                                 ),
                               ),
                             ),
@@ -92,17 +97,17 @@ class ProfileScreen extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      "John Doe",
-                      style: TextStyle(
+                    Text(
+                      user?.fullName ?? "Loading...",
+                      style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF1E293B),
                       ),
                     ),
-                    const Text(
-                      "john.doe@example.com",
-                      style: TextStyle(
+                    Text(
+                      user?.email ?? "...",
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Color(0xFF64748B),
                       ),
@@ -140,10 +145,10 @@ class ProfileScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 16),
-                    const Column(
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
+                        const Text(
                           "Account Status",
                           style: TextStyle(
                             fontSize: 14,
@@ -151,8 +156,8 @@ class ProfileScreen extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          "Verified Profile",
-                          style: TextStyle(
+                          user?.status ?? "Verified Profile",
+                          style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Color(0xFF1E293B),
@@ -220,7 +225,16 @@ class ProfileScreen extends StatelessWidget {
                 width: double.infinity,
                 height: 56,
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () async {
+                    await authService.signOut();
+                    if (context.mounted) {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LoginScreen()),
+                        (route) => false,
+                      );
+                    }
+                  },
                   style: TextButton.styleFrom(
                     foregroundColor: Colors.red,
                     shape: RoundedRectangleBorder(

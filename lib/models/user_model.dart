@@ -6,6 +6,8 @@ class UserModel {
   final String status;
   final String profileImageUrl;
 
+  final double balance;
+
   UserModel({
     required this.uid,
     required this.email,
@@ -13,6 +15,7 @@ class UserModel {
     required this.phoneNumber,
     this.status = "Verified Profile",
     this.profileImageUrl = "https://i.pravatar.cc/300",
+    this.balance = 0.0,
   });
 
   Map<String, dynamic> toMap() {
@@ -23,6 +26,7 @@ class UserModel {
       'phoneNumber': phoneNumber,
       'status': status,
       'profileImageUrl': profileImageUrl,
+      'balance': balance,
     };
   }
 
@@ -34,6 +38,7 @@ class UserModel {
       phoneNumber: map['phoneNumber'] ?? '',
       status: map['status'] ?? 'Verified Profile',
       profileImageUrl: map['profileImageUrl'] ?? 'https://i.pravatar.cc/300',
+      balance: (map['balance'] ?? 0.0).toDouble(),
     );
   }
 }
