@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import '../services/firebase_auth_service.dart';
 import 'home_screen.dart';
 import 'register_screen.dart';
 
@@ -11,19 +11,33 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final email = TextEditingController();
   final password = TextEditingController();
+  final FirebaseAuthService _authService = FirebaseAuthService();
+  bool _isLoading = false;
 
-  void loginUser() {
-    bool success = AuthService.login(email.text, password.text);
+  void loginUser() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-    if (success) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (_) => HomeScreen()),
-      );
+    var user = await _authService.signIn(email.text, password.text);
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (user != null) {
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => HomeScreen()),
+        );
+      }
     } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text("Invalid credentials")));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Login failed. Please check your credentials.")));
+      }
     }
   }
 
@@ -42,9 +56,12 @@ class _LoginScreenState extends State<LoginScreen> {
             TextField(
               controller: password,
               decoration: InputDecoration(labelText: "Password"),
+              obscureText: true,
             ),
             SizedBox(height: 20),
-            ElevatedButton(onPressed: loginUser, child: Text("Login")),
+            _isLoading
+                ? CircularProgressIndicator()
+                : ElevatedButton(onPressed: loginUser, child: Text("Login")),
             TextButton(
               onPressed: () {
                 Navigator.push(

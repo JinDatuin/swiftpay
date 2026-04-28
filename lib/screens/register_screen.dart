@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/auth_service.dart';
+import '../services/firebase_auth_service.dart';
 import 'login_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -10,18 +10,45 @@ class RegisterScreen extends StatefulWidget {
 class _RegisterScreenState extends State<RegisterScreen> {
   final email = TextEditingController();
   final password = TextEditingController();
+  final fullName = TextEditingController();
+  final phoneNumber = TextEditingController();
+  final FirebaseAuthService _authService = FirebaseAuthService();
+  bool _isLoading = false;
 
-  void registerUser() {
-    AuthService.register(email.text, password.text);
+  void registerUser() async {
+    setState(() {
+      _isLoading = true;
+    });
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text("Registered Successfully")));
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => LoginScreen()),
+    var user = await _authService.register(
+      email.text,
+      password.text,
+      fullName.text,
+      phoneNumber.text,
     );
+
+    setState(() {
+      _isLoading = false;
+    });
+
+    if (user != null) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Registered Successfully")));
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => LoginScreen()),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Registration failed. Please try again.")));
+      }
+    }
   }
 
   @override
@@ -33,15 +60,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: Column(
           children: [
             TextField(
+              controller: fullName,
+              decoration: InputDecoration(labelText: "Full Name"),
+            ),
+            TextField(
+              controller: phoneNumber,
+              decoration: InputDecoration(labelText: "Phone Number"),
+            ),
+            TextField(
               controller: email,
               decoration: InputDecoration(labelText: "Email"),
             ),
             TextField(
               controller: password,
               decoration: InputDecoration(labelText: "Password"),
+              obscureText: true,
             ),
             SizedBox(height: 20),
-            ElevatedButton(onPressed: registerUser, child: Text("Register")),
+            _isLoading
+                ? CircularProgressIndicator()
+                : ElevatedButton(onPressed: registerUser, child: Text("Register")),
           ],
         ),
       ),

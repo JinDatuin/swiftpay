@@ -1,0 +1,25 @@
+{
+    "flutter": {
+        "platforms": {
+            "android": {
+                "default": {
+                    "projectId": "swiftpay-61b00",
+                    "appId": "1:911250800566:android:31af126330df0896ac4b17",
+                    "fileOutput": "android/app/google-services.json"
+                }
+            },
+            "dart": {
+                "lib/firebase_options.dart": {
+                    "projectId": "swiftpay-61b00",
+                    "configurations": {
+                        "android": "1:911250800566:android:31af126330df0896ac4b17",
+                        "ios": "1:911250800566:ios:5873f788c42c32fdac4b17",
+                        "macos": "1:911250800566:ios:5873f788c42c32fdac4b17",
+                        "web": "1:911250800566:web:deec3cb26165f016ac4b17",
+                        "windows": "1:911250800566:web:2cc3a582ef22ba5aac4b17"
+                    }
+                }
+            }
+        }
+    }
+}
